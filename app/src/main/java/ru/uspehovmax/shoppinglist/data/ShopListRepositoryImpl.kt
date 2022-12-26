@@ -14,7 +14,7 @@ object ShopListRepositoryImpl: ShopListRepository {
     private val shopList = sortedSetOf<ShopItem>({ o1, o2 -> o1.id.compareTo(o2.id) })
 
     init {
-        for (i in 0 until 5000) {
+        for (i in 0 until 500) {
             val item = ShopItem("Name $i",i, Random.nextBoolean())
             addShopItem(item)
         }

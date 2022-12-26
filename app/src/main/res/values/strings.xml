@@ -2,4 +2,9 @@
     <string name="app_name">Shopping List</string>
     <string name="add_shop_item_content_description">Add new shop item</string>
     <string name="title_activity_main2">MainActivity2</string>
+    <string name="save">save</string>
+    <string name="count">Count:</string>
+    <string name="name">Name:</string>
+    <string name="error_input_count">Invalid count!</string>
+    <string name="error_input_name" >Invalid Name!</string>
 </resources>
