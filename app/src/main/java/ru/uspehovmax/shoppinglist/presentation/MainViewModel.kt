@@ -16,7 +16,9 @@ class MainViewModel : ViewModel() {
     private val getShopListUseCase = GetShopListUseCase(repository)
     private val editShopItemUseCase = EditShopItemUseCase(repository)
     private val deleteShopItemUseCase = DeleteShopItemUseCase(repository)
+/*
     private val addShopItemUseCase = AddShopItemUseCase(repository)
+*/
 
     val shopListViewModel = getShopListUseCase.getShopList()
 
@@ -34,6 +36,3 @@ class MainViewModel : ViewModel() {
 //        Log.d("msg", "addShopItem")
 //    }
 }
-/*
-1.
- */

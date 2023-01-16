@@ -15,14 +15,15 @@ import com.google.android.material.textfield.TextInputLayout
 import ru.uspehovmax.shoppinglist.R
 import ru.uspehovmax.shoppinglist.domain.ShopItem
 
-class ShopItemActivity : AppCompatActivity() {
-    private lateinit var viewModelShopItem: ShopItemViewModel
+class ShopItemActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
+
+/*    private lateinit var viewModelShopItem: ShopItemViewModel
 
     private lateinit var tilName: TextInputLayout
     private lateinit var tilCount: TextInputLayout
     private lateinit var etName: EditText
     private lateinit var etCount: EditText
-    private lateinit var buttonSave: Button
+    private lateinit var buttonSave: Button*/
 
     private var screenMode = MODE_UNKNOWN
     private var shopItemId = ShopItem.UNDEFINED_ID
@@ -55,21 +56,27 @@ class ShopItemActivity : AppCompatActivity() {
 
         // проверка переданного из интента
         parseIntent()
-
+/*
         // инициализируем viewModel через ViewModelProvider
-        viewModelShopItem = ViewModelProvider(this)[ShopItemViewModel::class.java]
+//        viewModelShopItem = ViewModelProvider(this)[ShopItemViewModel::class.java]
 
         // инициализируем  view элементы
-        initViews()
+//        initViews()
         // сброс ошибки
-        addTextChangeListeners()
+//        addTextChangeListeners() */
+
         // выбранный режим
-        launchRightMode()
-        // сообщения об ошибке
-        observeViewModel()
+        if (savedInstanceState == null) {
+            launchRightMode()
+        }
+//        observeViewModel()
     }
 
-    private fun observeViewModel(){
+    override fun onEditingFinished() {
+        finish()
+    }
+
+/*    private fun observeViewModel(){
         // при неправильном вводе Count появится сообщение
         viewModelShopItem.errorInputCount.observe(this) {
             val message = if(it) {
@@ -89,20 +96,26 @@ class ShopItemActivity : AppCompatActivity() {
             }
             tilName.error = message
         }
+
         viewModelShopItem.shouldCloseScreen.observe(this) {
+            // при срабатывании LiveData<Unit>
+            // Закрытие активити, возврат к MainActivity
             finish()
         }
-    }
+    }*/
 
     private fun launchRightMode() {
-        // запуск экрана в разных режимах
-        when(screenMode) {
-            MODE_EDIT -> launchEditMode()
-            MODE_ADD -> launchAddMode()
+        val fragment = when (screenMode) {
+            MODE_EDIT -> ShopItemFragment.newInstanceEditItem(shopItemId)
+            MODE_ADD  -> ShopItemFragment.newInstanceAddItem()
+            else      -> throw RuntimeException("Unknown screen mode $screenMode")
         }
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.shop_item_container, fragment)
+            .commit()
     }
 
-    private fun addTextChangeListeners() {
+/*    private fun addTextChangeListeners() {
         // --
         etName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -124,9 +137,9 @@ class ShopItemActivity : AppCompatActivity() {
             }
         })
 
-    }
+    }*/
 
-    private fun launchAddMode() {
+/*    private fun launchAddMode() {
 //        viewModelShopItem.getShopItem(shopItemId)
 //        viewModelShopItem.shopItem.observe(this){
 //            etName.setText(it.name)
@@ -135,9 +148,9 @@ class ShopItemActivity : AppCompatActivity() {
         buttonSave.setOnClickListener{
             viewModelShopItem.addShopItem(etName.text?.toString(), etCount.text?.toString())
         }
-    }
+    }*/
 
-    private fun launchEditMode() {
+/*    private fun launchEditMode() {
         viewModelShopItem.getShopItem(shopItemId)
         viewModelShopItem.shopItem.observe(this){
             etName.setText(it.name)
@@ -146,16 +159,16 @@ class ShopItemActivity : AppCompatActivity() {
         buttonSave.setOnClickListener{
             viewModelShopItem.editShopItem(etName.text?.toString(), etCount.text?.toString())
         }
-    }
+    }*/
 
-    private fun initViews() {
+/*    private fun initViews() {
         // инициализируем переменные, связывая с разметкой
         tilName = findViewById(R.id.til_name)
         tilCount = findViewById(R.id.til_count)
         etName = findViewById(R.id.et_name)
         etCount = findViewById(R.id.et_count)
         buttonSave = findViewById(R.id.save_button)
-    }
+    }*/
 
     private fun parseIntent(){
         if (!intent.hasExtra(EXTRA_SCREEN_MODE)) {

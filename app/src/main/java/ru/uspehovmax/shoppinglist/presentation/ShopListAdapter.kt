@@ -2,12 +2,17 @@ package ru.uspehovmax.shoppinglist.presentation
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.ListAdapter
 import ru.uspehovmax.shoppinglist.R
+import ru.uspehovmax.shoppinglist.databinding.ItemShopDisabledBinding
+import ru.uspehovmax.shoppinglist.databinding.ItemShopEnabledBinding
 import ru.uspehovmax.shoppinglist.domain.ShopItem
 
 class ShopListAdapter : ListAdapter<ShopItem, ShopItemViewHolder>(ShopItemDiffCallback())  {
-        // изменили с : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>() {
+
+/*        // изменили с : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>() {
 
 //    var count = 0
 //      поменяли реализацию после ListAdapter<...>
@@ -23,7 +28,7 @@ class ShopListAdapter : ListAdapter<ShopItem, ShopItemViewHolder>(ShopItemDiffCa
 
 //            notifyDataSetChanged() // плохое решение - идет перерисовка всего списка
 //        }
-
+*/
     var onShopItemLongClickListener: ((ShopItem) -> Unit)? = null
     var onShopItemClickListener: ((ShopItem) -> Unit)? = null
 
@@ -32,7 +37,7 @@ class ShopListAdapter : ListAdapter<ShopItem, ShopItemViewHolder>(ShopItemDiffCa
         const val VIEW_TYPE_DISABLED = 101
         const val MAX_POOL_SIZE = 15
     }
-
+/*
 //    interface OnShopItemLongClickListener {
 //        fun onShopItemLongClick(shopItem: ShopItem)
 //    }
@@ -40,7 +45,7 @@ class ShopListAdapter : ListAdapter<ShopItem, ShopItemViewHolder>(ShopItemDiffCa
 //      поменяли реализацию после ListAdapter<...>
 //    override fun getItemCount(): Int {
 //        return shopList.size
-//    }
+//    }*/
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopItemViewHolder {
 //        Log.d("msg", "onCreateViewHolder ${count++}")
@@ -49,24 +54,49 @@ class ShopListAdapter : ListAdapter<ShopItem, ShopItemViewHolder>(ShopItemDiffCa
             VIEW_TYPE_DISABLED -> R.layout.item_shop_disabled
             else -> throw RuntimeException("Unknown view Type: $viewType")
         }
-        val view = LayoutInflater.from(parent.context).inflate(layout, parent, false)
-        return ShopItemViewHolder(view)
+//        val view = LayoutInflater.from(parent.context).inflate(layout, parent, false)
+        val binding = DataBindingUtil.inflate<ViewDataBinding>(
+            LayoutInflater.from(parent.context),
+            layout,
+            parent,
+            false
+        )
+        return ShopItemViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ShopItemViewHolder, position: Int) {
 //        Log.d("msg", "onBindViewHolder ${count++}")
 //        val shopItem = shopList[position]  //      поменяли реализацию после ListAdapter<...>
         val shopItem = getItem(position)
+        val binding = holder.binding
 
-        holder.tvName.text = "${shopItem.name} "
-        holder.tvCount.text = shopItem.count.toString()
-        holder.view.setOnLongClickListener {
+        binding.root.setOnLongClickListener {
+            onShopItemLongClickListener?.invoke(shopItem)
+            true
+        }
+
+        binding.root.setOnClickListener {
+            onShopItemClickListener?.invoke(shopItem)
+            true
+        }
+ /*       holder.view.setOnLongClickListener {
             onShopItemLongClickListener?.invoke(shopItem)
             true
         }
         holder.view.setOnClickListener {
             onShopItemClickListener?.invoke(shopItem)
             true
+        }*/
+        // приведение типов
+        when(binding) {
+            is ItemShopDisabledBinding -> {
+                binding.tvName.text = "${shopItem.name} "
+                binding.tvCount.text = shopItem.count.toString()
+            }
+            is ItemShopEnabledBinding -> {
+                binding.tvName.text = "${shopItem.name} "
+                binding.tvCount.text = shopItem.count.toString()
+            }
         }
     }
 
@@ -79,7 +109,7 @@ class ShopListAdapter : ListAdapter<ShopItem, ShopItemViewHolder>(ShopItemDiffCa
             VIEW_TYPE_DISABLED
         }
     }
-
+/*
 //       поменяли реализацию после ListAdapter<...>
 //    override fun onViewRecycled(holder: ShopItemViewHolder) {
 //        super.onViewRecycled(holder)
@@ -91,7 +121,7 @@ class ShopListAdapter : ListAdapter<ShopItem, ShopItemViewHolder>(ShopItemDiffCa
 //                android.R.color.white
 //            )
 //        )
-//    }
+//    }*/
 
 
 }

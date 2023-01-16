@@ -20,10 +20,10 @@ import ru.uspehovmax.shoppinglist.domain.ShopItem
  */
 class ShopItemViewModel : ViewModel() {
 
-    private val repository2 = ShopListRepositoryImpl
-    private val getShopItemUseCase = GetShopItemUseCase(repository2)
-    private val addShopItemUseCase = AddShopItemUseCase(repository2)
-    private val editShopItemUseCase = EditShopItemUseCase(repository2)
+    private val repository = ShopListRepositoryImpl
+    private val getShopItemUseCase = GetShopItemUseCase(repository)
+    private val addShopItemUseCase = AddShopItemUseCase(repository)
+    private val editShopItemUseCase = EditShopItemUseCase(repository)
 
     // MutableLiveData для ShopItemViewModel,  LiveData для ShopItemActivity
     private val _errorInputName = MutableLiveData<Boolean>()
@@ -102,11 +102,11 @@ class ShopItemViewModel : ViewModel() {
         return result
     }
 
-    public fun resetErrorName() {
+    fun resetErrorInputName() {
         _errorInputName.value = false
     }
 
-    public fun resetErrorCount() {
+    fun resetErrorInputCount() {
         _errorInputCount.value = false
     }
 
