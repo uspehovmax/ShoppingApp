@@ -1,8 +1,11 @@
 package ru.uspehovmax.shoppinglist.presentation
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import ru.uspehovmax.shoppinglist.data.ShopListRepositoryImpl
 import ru.uspehovmax.shoppinglist.domain.AddShopItemUseCase
 import ru.uspehovmax.shoppinglist.domain.EditShopItemUseCase
@@ -18,9 +21,24 @@ import ru.uspehovmax.shoppinglist.domain.ShopItem
  *  public fun resetErrorName() для сброса ошибки из Activity
  *  finishWork() и _shouldCloseScreen.value = true для сигнал-и о возможности закрыть окно
  */
-class ShopItemViewModel : ViewModel() {
+class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ShopListRepositoryImpl
+    /*
+    Во ViewModel нужно работать в гавном потоке и завершать scope в onCleared()
+    Одно из правил корутин - они должны быть запущены внутри scope с опред.ЖЦ
+    Чтобы использовать корутины внутри ViewModel - испо-ем scope у которого ЖЦ = ЖЦ ViewModel
+
+     */
+
+    // конструктор CoroutineScope и передать параметром контекст корутины - Dispatchers
+    // Dispatchers определяет на каком потоке выполняется корутина
+    // Dispatchers.IO - выполенени операций чтения/записи до 64 потоков, Main - на главном потоке,
+    // Dispatchers.default - столько потоков сколько ядер проц-а
+//    private val scope = CoroutineScope(Dispatchers.Main)
+    //  Поэтому нужно использовать viewModelScope !
+
+
+    private val repository = ShopListRepositoryImpl(application)
     private val getShopItemUseCase = GetShopItemUseCase(repository)
     private val addShopItemUseCase = AddShopItemUseCase(repository)
     private val editShopItemUseCase = EditShopItemUseCase(repository)
@@ -43,8 +61,10 @@ class ShopItemViewModel : ViewModel() {
         get() = _shouldCloseScreen
 
     fun getShopItem(shopItemId: Int) {
-        val item = getShopItemUseCase.getShopItem(shopItemId)
-        _shopItem.value = item
+        viewModelScope.launch {
+            val item = getShopItemUseCase.getShopItem(shopItemId)
+            _shopItem.value = item
+        }
     }
 
     /**
@@ -58,9 +78,11 @@ class ShopItemViewModel : ViewModel() {
         val count = parseCount(inputCount)
         val fieldsValid = validateInput(name, count)
         if (fieldsValid) {
-            val shopItem = ShopItem(name, count, enabled = true)
-            addShopItemUseCase.addShopItem(shopItem)
-            finishWork()
+            viewModelScope.launch {
+                val shopItem = ShopItem(name, count, enabled = true)
+                addShopItemUseCase.addShopItem(shopItem)
+                finishWork()
+            }
         }
     }
 
@@ -70,9 +92,11 @@ class ShopItemViewModel : ViewModel() {
         val fieldsValid = validateInput(name, count)
         if (fieldsValid) {
             _shopItem.value?.let {
-                val item = it.copy(name = name, count = count)
-                editShopItemUseCase.editShopItem(item)
-                finishWork()
+                viewModelScope.launch {
+                    val item = it.copy(name = name, count = count)
+                    editShopItemUseCase.editShopItem(item)
+                    finishWork()
+                }
             }
         }
     }
@@ -114,4 +138,10 @@ class ShopItemViewModel : ViewModel() {
         _shouldCloseScreen.value = Unit
     }
 
+    // при использовании viewModelScope не нужна - все автоматом
+    // корутина отмена
+//    override fun onCleared() {
+//        super.onCleared()
+//        scope.cancel()
+//    }
 }

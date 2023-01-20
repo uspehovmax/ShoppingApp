@@ -14,7 +14,7 @@ import ru.uspehovmax.shoppinglist.R
 import ru.uspehovmax.shoppinglist.databinding.ActivityMainBinding
 
 /**
- * 1. Объявить viewModel и ShopListAdapter
+ * 1. Объявить viewModel, ShopListAdapter, binding
  * 2. В  onCreate добавить viewModel и сделать observe LiveData (TextView)
  * 3. В  onCreate добавить listener-ы нажатий и свайпа
  */
@@ -30,12 +30,16 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedList
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // связываем разметку и переменную и ставим слушателей
         setupRecyclerView()
+
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.shopListViewModel.observe(this) {
 //            shopListAdapter.shopList = it     //поменяли реализацию после ListAdapter<...>
             shopListAdapter.submitList(it)
         }
+
 //        val buttonAddItem = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
         binding.buttonAddShopItem.setOnClickListener {
             if (isOnePaneMode()) {
